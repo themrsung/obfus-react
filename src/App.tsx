@@ -78,6 +78,11 @@ export default function App() {
           the bytes stop looking like their original format — and nothing more.
           For secrecy use age, libsodium, or AES-GCM with a real KDF.
         </p>
+        <p className="footnote__links">
+          <a href="https://github.com/themrsung/obfus-react">Source on GitHub</a>
+          <span aria-hidden="true">·</span>
+          <a href="https://github.com/themrsung/file-obfuscation">Upstream CLIs</a>
+        </p>
       </footer>
     </div>
   );
