@@ -1,0 +1,13 @@
+{
+  "engine": {
+    "maxMemoryBytes": 268435456,
+    "chunkSize": "auto",
+    "minChunkSize": 65536,
+    "maxChunkSize": 8388608,
+    "memorySafetyFactor": 6
+  },
+  "ecc": {
+    "enabled": true,
+    "maxOverheadRatio": 0.05
+  }
+}

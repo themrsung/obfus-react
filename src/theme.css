@@ -1,0 +1,99 @@
+/*
+ * Palette: 040303 · 3a4e48 · 6a7b76 · 8b9d83 · beb0a7
+ *
+ * Four of the five are desaturated greens, so the lone warm tone (beb0a7) is
+ * reserved for body copy and for anything that needs to read as a warning —
+ * it is the only hue shift available, which makes it the honest choice for
+ * "this is different" rather than inventing an off-palette red.
+ */
+
+:root {
+  --ink:      #040303;
+  --slate:    #3a4e48;
+  --moss:     #6a7b76;
+  --sage:     #8b9d83;
+  --linen:    #beb0a7;
+
+  --surface-1: color-mix(in srgb, var(--slate) 14%, var(--ink));
+  --surface-2: color-mix(in srgb, var(--slate) 24%, var(--ink));
+  --surface-3: color-mix(in srgb, var(--slate) 38%, var(--ink));
+
+  --line:      color-mix(in srgb, var(--slate) 62%, var(--ink));
+  --line-soft: color-mix(in srgb, var(--slate) 34%, var(--ink));
+
+  --text:      var(--linen);
+  --text-dim:  color-mix(in srgb, var(--linen) 62%, var(--ink));
+  --text-mute: var(--moss);
+
+  --accent:     var(--sage);
+  --accent-dim: color-mix(in srgb, var(--sage) 45%, var(--ink));
+
+  --warn:         var(--linen);
+  --warn-surface: color-mix(in srgb, var(--linen) 11%, var(--ink));
+  --warn-line:    color-mix(in srgb, var(--linen) 45%, var(--ink));
+
+  --radius: 10px;
+  --radius-sm: 6px;
+  --gap: 16px;
+
+  --font: ui-sans-serif, -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* A faint wash so the page is not a flat black rectangle. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(70ch 50ch at 18% -10%, color-mix(in srgb, var(--slate) 30%, transparent), transparent 70%),
+    radial-gradient(50ch 40ch at 100% 0%, color-mix(in srgb, var(--sage) 8%, transparent), transparent 70%);
+}
+
+button, input, select { font: inherit; color: inherit; }
+
+button {
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  transition: background 140ms var(--ease), border-color 140ms var(--ease),
+              color 140ms var(--ease), opacity 140ms var(--ease);
+}
+button:hover:not(:disabled) { background: var(--surface-3); border-color: var(--sage); }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
