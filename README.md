@@ -119,6 +119,24 @@ across sizes and chunk boundaries, exact packed-size projection, RS correction a
 uncorrectable-detection over randomised trials, header recovery from destroyed magic, and budget
 enforcement.
 
+## Performance
+
+Recovery has two very different speeds, because RS syndromes are cheap to compute and are zero for
+an intact block — the expensive Berlekamp–Massey/Chien/Forney decode only runs where it is needed.
+Measured on a 3 MB file, ECC on, in-browser:
+
+| | throughput |
+|---|---|
+| intact | ~7.6 MB/s |
+| every block damaged at the full correction radius | ~1.2 MB/s |
+
+The slow row is the pessimal case and not what real corruption looks like: it is a fixture with 6
+bad bytes in *every* 255-byte block. Sparse damage costs close to the intact rate, since undamaged
+blocks exit on the syndrome check.
+
+These are single-machine figures under ordinary desktop load and move around by a factor of a few
+run to run; treat them as shape, not spec.
+
 ## Interop
 
 ```bash
