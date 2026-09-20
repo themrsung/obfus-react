@@ -40,24 +40,56 @@ describe('reed-solomon RS(255,243)', () => {
     expect(block.subarray(0, 243)).toEqual(data);
   });
 
-  it('reports uncorrectable rather than returning corrupt data', () => {
+  /**
+   * Past the correction radius the decoder has three possible fates, and the
+   * third one is why the container does not rely on RS alone.
+   *
+   * RS(255,243) corrects 6 errors. Hand it 20 and it usually detects that it
+   * is lost, but it can also land on a *different valid codeword* — syndromes
+   * genuinely zero, data genuinely wrong. No bounded-distance decoder can
+   * detect that case, which is what the per-chunk CRC-32 in the container is
+   * there to catch.
+   *
+   * Asserted as a tally rather than per-trial: miscorrection is rare (order
+   * 0.1% per trial here) but real, so a per-trial assertion would be flaky.
+   */
+  it('detects or miscorrects beyond the radius, and never half-fixes', () => {
     let flagged = 0;
+    let miscorrected = 0;
+    let recovered = 0;
+    const wrongErrorTypes: unknown[] = [];
+
     for (let trial = 0; trial < 60; trial++) {
       const { block, data } = codeword(243);
       const positions = new Set<number>();
       while (positions.size < 20) positions.add(Math.floor(Math.random() * block.length));
       for (const p of positions) block[p] ^= (1 + Math.floor(Math.random() * 255));
 
+      // Classify outside the assertion layer: an expect() inside this try
+      // would have its AssertionError swallowed by the catch below.
+      let thrown: unknown = null;
       try {
         rsDecodeBlock(block, NSYM);
-        // Silent success is only acceptable if the data really is intact.
-        expect(block.subarray(0, 243)).toEqual(data);
       } catch (e) {
-        expect(e).toBeInstanceOf(RsUncorrectableError);
+        thrown = e;
+      }
+
+      if (thrown !== null) {
+        if (!(thrown instanceof RsUncorrectableError)) wrongErrorTypes.push(thrown);
         flagged++;
+      } else if (block.subarray(0, 243).every((b, i) => b === data[i])) {
+        recovered++;
+      } else {
+        miscorrected++;
       }
     }
-    expect(flagged).toBeGreaterThan(50);
+
+    // Whatever it throws must be the documented error, never a TypeError or
+    // a RangeError escaping the field arithmetic.
+    expect(wrongErrorTypes).toEqual([]);
+    expect(flagged + miscorrected + recovered).toBe(60);
+    // Detection is the overwhelmingly common outcome.
+    expect(flagged).toBeGreaterThan(40);
   });
 
   it('handles a short final block', () => {

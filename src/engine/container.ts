@@ -349,6 +349,11 @@ export async function unpackSource(
         repaired += res.corrected;
       }
 
+      // The CRC is not redundant with the ECC above it. Past its correction
+      // radius a bounded-distance decoder can settle on a different valid
+      // codeword — syndromes zero, data wrong — and no amount of RS can see
+      // that. This check is the only thing standing between that case and a
+      // silently corrupt output file.
       const blob = record.subarray(RECORD_HEADER_LEN);
       const wantCrc = new DataView(record.buffer).getUint32(4, true);
       const gotCrc = crc32(blob);
